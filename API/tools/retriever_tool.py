@@ -1,32 +1,23 @@
 # Vector Data impimentation
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.tools import tool
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
 
-def retriever_tool(path, query):
-    #Doc indexing
-    print("document indexing.....")
-    loader = PyPDFLoader(path)
-    document = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size = 500, chunk_overlap=50)
-    documents =  text_splitter.split_documents(document)
-    vectors = FAISS.from_documents(documents, embeddings)
-    retriver1 = vectors.as_retriever()
+def build_retriever_tool(vectorstore):
 
-    print("Retriever as a tool.....")
-    
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
     @tool
     def database_search(query: str) -> str:
-        """Search for information about the research paper.
-        You should use this tool to get the information about the relevant research paper."""
-        docs = retriver1.invoke(query)
+        """
+        Search relevant parts of the research paper.
+        Always use this tool before answering.
+        """
+        docs = retriever.invoke(query)
         return "\n\n".join([doc.page_content for doc in docs])
-    
-    return database_search.invoke({"query": query})
+
+    return database_search
 
 
 
