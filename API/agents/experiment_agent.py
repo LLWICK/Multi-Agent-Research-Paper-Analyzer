@@ -37,6 +37,3 @@ experimental_analysis_agent = create_agent(
     system_prompt=experimental_analysis_agent_prompt
 )
 
-experimental_analysis_agent_input = {"messages": [{"role": "user", "content": "experiment analysis on the given research paper"+ "context - "+str(result_parse_agent["messages"][-1].content)}]}
-experimental_analysis_agent_results=experimental_analysis_agent.invoke(experimental_analysis_agent_input)
-print(experimental_analysis_agent_results["messages"][-1].content)

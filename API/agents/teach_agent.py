@@ -32,7 +32,3 @@ teach_agent = create_agent(
     tools=teach_tools,
     system_prompt=teaching_agent_prompt
 )
-
-teach_agent_input = {"messages": [{"role": "user", "content": "Teach me this research paper context"+ "context - "+str(result_parse_agent["messages"][-1].content)}]}
-teach_agent_results=teach_agent.invoke(teach_agent_input)
-print(teach_agent_results["messages"][-1].content)

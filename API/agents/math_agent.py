@@ -35,6 +35,3 @@ math_agent = create_agent(
     system_prompt=Math_agent_prompt
 )
 
-math_agent_input = {"messages": [{"role": "user", "content": "explain all the mathematical terms in this research paper"+ "context - "+str(result_parse_agent["messages"][-1].content)}]}
-math_agent_results=math_agent.invoke(math_agent_input)
-print(math_agent_results["messages"][-1].content)
