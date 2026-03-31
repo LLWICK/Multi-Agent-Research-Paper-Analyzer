@@ -8,7 +8,7 @@ dependencies = [
     "arxiv>=2.4.1",
     "chromadb>=1.5.5",
     "faiss-cpu>=1.13.2",
-    "fastapi>=0.135.2",
+    "fastapi[standard]>=0.135.2",
     "httpx>=0.28.1",
     "langchain>=1.2.13",
     "langchain-community>=0.4.1",
@@ -20,6 +20,7 @@ dependencies = [
     "pydantic>=2.12.5",
     "pypdf>=6.9.2",
     "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.22",
     "uvicorn>=0.42.0",
     "wikipedia>=1.4.0",
 ]

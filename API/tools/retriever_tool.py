@@ -1,6 +1,8 @@
 # Vector Data impimentation
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.tools import tool
+from dotenv import load_dotenv
+load_dotenv()
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
 

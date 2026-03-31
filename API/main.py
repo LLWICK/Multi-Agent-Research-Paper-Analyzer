@@ -1,6 +1,13 @@
-def main():
-    print("Hello from api!")
+from fastapi import FastAPI
+from routes import agent_analyze
+
+app = FastAPI()
 
 
-if __name__ == "__main__":
-    main()
+app.include_router(agent_analyze.router)
+
+
+
+
+
+

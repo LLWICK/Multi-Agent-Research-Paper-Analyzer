@@ -2,6 +2,8 @@ import asyncio
 from agents.teach_agent import teach_agent
 from agents.math_agent import math_agent
 from agents.experiment_agent import experimental_analysis_agent
+from dotenv import load_dotenv
+load_dotenv()
 
 async def run_agent(agent, context, prompt):
     result = agent.invoke({

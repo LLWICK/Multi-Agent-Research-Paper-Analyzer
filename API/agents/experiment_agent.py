@@ -4,6 +4,8 @@ from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun
 from langchain_community.utilities import ArxivAPIWrapper
+from dotenv import load_dotenv
+load_dotenv()
 
 experimental_analysis_agent_prompt = """You are the Experimental Analysis Agent and Empirical reviewer. 
 Read the given context carefully and explain / Reviews Datasets used, Experimental setup, Baselines, Evaluation metrics.

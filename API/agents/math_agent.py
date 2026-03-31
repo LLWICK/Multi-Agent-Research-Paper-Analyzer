@@ -2,6 +2,8 @@ from langchain.agents import create_agent
 from langchain_groq import ChatGroq
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
+from dotenv import load_dotenv
+load_dotenv()
 
 
 Math_agent_prompt = """You are the Mathematical Reasoning Agent. 
