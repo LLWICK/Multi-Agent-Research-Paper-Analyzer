@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from services.vectore_store import create_or_load_vectorstore
+from langchain_ollama import ChatOllama
 load_dotenv()
 
 #Agent pre setup
@@ -22,49 +23,65 @@ def praser_Agent(pdf_path):
     vectorstore = create_or_load_vectorstore(pdf_path)
     retriever_tool = build_retriever_tool(vectorstore)
     parse_agent_Tools = [retriever_tool]
-    llm = ChatGroq(
-        model="openai/gpt-oss-120b",
-        temperature=1,
-        max_tokens=100,
-        timeout=None,
-        max_retries=2, 
+
+  
+
+    llm = ChatOllama(
+        model="llama3.2",
+        temperature=0,
         # other params...
     )
+    
+
+    """ llm = ChatGroq(
+    model="openai/gpt-oss-120b",
+    temperature=0,
+    max_tokens=None,
+    reasoning_format="parsed",
+    timeout=None,
+    max_retries=2, 
+    # other params...
+) """
     parse_llm_with_tools = llm.bind_tools(parse_agent_Tools)
 
     parse_agent_prompt = """
-    You are a Research Document Parsing Agent.
+You are a Research Document Parsing Agent.
 
-    - Do NOT wait for user input or paper name
-    - Go directly to the vector database and extract
-    - Do NOT ask questions
-    - Use the document retrieval tool to read the paper
-    Steps:
-    1. Call the database_search tool MULTIPLE times with different queries:
-    - "abstract of the paper"
-    - "methodology"
-    - "mathematical equations"
-    - "experiments and dataset"
-    - "results and evaluation"
+Your job is to extract structured information from a research paper using the database_search tool.
 
-    2. Combine all retrieved content
+Instructions:
+- Use the retriever_tool tool to retrieve relevant sections of the paper
+- You may call the tool multiple times if needed
+- Do NOT ask the user anything
+- Do NOT make up information
+- Only use retrieved content
 
-    3. Return structured JSON:
+What to extract:
+- Abstract
+- Method
+- Math (equations or formulas)
+- Experiments (datasets, setup)
+- Results (performance, evaluation)
+- Youtube (YouTube search query to find the more information about this paper NOT YOUTUBE LINKS JUST SEARCH QUERY)
 
-    {
-    "Abstract": "...",
-    "Method": "...",
-    "Math": "...",
-    "Experiments": "...",
-    "Results": "...",
-    "Youtube": "search query to learn this paper"
-    }
+Output format (STRICT):
+Return ONLY valid JSON with this structure:
 
-    Rules:
-    - MUST use the tool multiple times
-    - DO NOT hallucinate
-    - Output ONLY JSON
-    """
+{
+  "Abstract": "...",
+  "Method": "...",
+  "Math": "...",
+  "Experiments": "...",
+  "Results": "...",
+  "Youtube": "..."
+}
+
+Rules:
+- No extra text outside JSON
+- No explanations
+- Keep answers simple and clear
+- If something is not found, return "Not found"
+"""
 
     parse_agent = create_agent(
         model=parse_llm_with_tools,  # or any other supported model identifier string
@@ -75,7 +92,8 @@ def praser_Agent(pdf_path):
 
     inputs = {"messages": [{"role": "user", "content": "Analyze the given research paper"}]}
     result_parse_agent=parse_agent.invoke(inputs)
-    return result_parse_agent["messages"][-1].content;
+    return result_parse_agent["messages"][-1].content
+    
 
 
 

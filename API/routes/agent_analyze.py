@@ -7,24 +7,31 @@ from agents.parser_agent import praser_Agent
 from dotenv import load_dotenv
 from pathlib import Path
 load_dotenv()
+import os
 
 router = APIRouter()
 
 @router.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
-    path = Path("temp") / file.filename
-    path.parent.mkdir(parents=True, exist_ok=True)
+    #path = Path("temp") / file.filename
+    #path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent # adjust if needed
+
+    file_path = BASE_DIR  / "test_documents" / str(file.filename)
+    file_path = file_path.resolve()
+
+    
 
 
-    #parsed = praser_Agent(path)
+    parsed = praser_Agent(file_path)
 
-    #parsed_content = parsed["messages"][-1].content
+    
 
-    """ contexts = split_context(parsed_content)
+    #contexts = split_context(parsed)
 
-    results = await run_all_agents(contexts) """
-
-    return {"p":path};
+    #results = await run_all_agents(contexts)
+    
+    
+   
+    return parsed;

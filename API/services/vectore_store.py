@@ -15,7 +15,7 @@ DB_PATH = "faiss_index"
 def create_or_load_vectorstore(pdf_path: str):
     loader = PyPDFLoader(pdf_path)
     document = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size = 500, chunk_overlap=100)
     documents =  text_splitter.split_documents(document)
     vectors = FAISS.from_documents(documents, embeddings)
 
