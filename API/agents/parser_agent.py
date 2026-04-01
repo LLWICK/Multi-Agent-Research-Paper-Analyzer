@@ -14,6 +14,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from services.vectore_store import create_or_load_vectorstore
 from langchain_ollama import ChatOllama
+from services.Structured_output import PaperOutput
 load_dotenv()
 
 #Agent pre setup
@@ -43,6 +44,8 @@ def praser_Agent(pdf_path):
     # other params...
 ) """
     parse_llm_with_tools = llm.bind_tools(parse_agent_Tools)
+    
+    
 
     parse_agent_prompt = """
 You are a Research Document Parsing Agent.
@@ -57,12 +60,12 @@ Instructions:
 - Only use retrieved content
 
 What to extract:
-- Abstract
+- Abstract(Descriptive Abstract with Research Paper Name)
 - Method
 - Math (equations or formulas)
-- Experiments (datasets, setup)
+- Experiments (datasets, setup with with Research Paper Name)
 - Results (performance, evaluation)
-- Youtube (YouTube search query to find the more information about this paper NOT YOUTUBE LINKS JUST SEARCH QUERY)
+- Youtube (YouTube search query which strictly represents the paperto find the more information about this paper NOT YOUTUBE LINKS JUST SEARCH QUERY )
 
 Output format (STRICT):
 Return ONLY valid JSON with this structure:
@@ -78,8 +81,8 @@ Return ONLY valid JSON with this structure:
 
 Rules:
 - No extra text outside JSON
-- No explanations
-- Keep answers simple and clear
+-descriptive details PLEASE DO NOT SUMMARIZE DETAILS MAKE IT DESCRIPTIVE 
+-don't miss any important detail on research paper
 - If something is not found, return "Not found"
 """
 
@@ -92,7 +95,11 @@ Rules:
 
     inputs = {"messages": [{"role": "user", "content": "Analyze the given research paper"}]}
     result_parse_agent=parse_agent.invoke(inputs)
-    return result_parse_agent["messages"][-1].content
+    raw_text =  result_parse_agent["messages"][-1].content
+    structured_llm = llm.with_structured_output(PaperOutput)
+    final_output = structured_llm.invoke(raw_text)
+
+    return final_output.dict()
     
 
 
