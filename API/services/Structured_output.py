@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field
 
 class PaperOutput(BaseModel):
-    Abstract: str = Field(description="full blown Summary of the paper with Research Paper Name")
-    Method: str = Field(description="Methodology used")
+    Name: str = Field(description="Include the Research Paper Name")
+    Abstract: str = Field(description="full blown Summary of the Research Paper Name")
+    Method: str = Field(description="Methodology used in the research paper")
     Math: str = Field(description="Mathematical equations or concepts with Research Paper Name")
     Experiments: str = Field(description="Datasets and experimental setup")
     Results: str = Field(description="Evaluation results")
-    Youtube: str = Field(description="YouTube search query for the paper NOT YOUTUBE LINKS JUST SEARCH QUERY ")
+    Youtube: str = Field(description="Just a SHORT searchable YOUTUBE query STRICTLY NOT A LINK ")

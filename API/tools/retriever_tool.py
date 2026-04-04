@@ -1,6 +1,7 @@
 # Vector Data impimentation
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.tools import tool
+from services.clean_text import clean_text
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
 
@@ -17,7 +18,9 @@ def build_retriever_tool(vectorstore):
         Always use this tool before answering.
         """
         docs = retriever.invoke(query)
-        return "\n\n".join([doc.page_content for doc in docs])
+        raw_text = "\n\n".join([doc.page_content for doc in docs])
+        cleaned_text = clean_text(raw_text)
+        return cleaned_text;
 
     return database_search;
 

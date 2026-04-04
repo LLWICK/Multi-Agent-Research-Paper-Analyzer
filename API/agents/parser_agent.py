@@ -15,6 +15,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from services.vectore_store import create_or_load_vectorstore
 from langchain_ollama import ChatOllama
 from services.Structured_output import PaperOutput
+from langchain_community.tools import WikipediaQueryRun
+from langchain_community.utilities import WikipediaAPIWrapper
+from tools.MultiStep_Reasoning import multi_step_retrieval
 load_dotenv()
 
 #Agent pre setup
@@ -23,72 +26,74 @@ def praser_Agent(pdf_path):
 
     vectorstore = create_or_load_vectorstore(pdf_path)
     retriever_tool = build_retriever_tool(vectorstore)
-    parse_agent_Tools = [retriever_tool]
+    wiki_api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+    wiki_tool = WikipediaQueryRun(api_wrapper= wiki_api_wrapper)
+    parse_agent_tools = [wiki_tool]
+
+    context = multi_step_retrieval(retriever_tool)
 
   
 
     llm = ChatOllama(
         model="llama3.2",
         temperature=0,
+        max_tokens=None,
+        reasoning_format="parsed",
+        timeout=None,
+        max_retries=2, 
         # other params...
     )
-    
 
-    """ llm = ChatGroq(
-    model="openai/gpt-oss-120b",
-    temperature=0,
-    max_tokens=None,
-    reasoning_format="parsed",
-    timeout=None,
-    max_retries=2, 
-    # other params...
-) """
-    parse_llm_with_tools = llm.bind_tools(parse_agent_Tools)
+    #parse_llm_with_tools = llm.bind_tools(parse_agent_Tools)
     
     
 
-    parse_agent_prompt = """
-You are a Research Document Parsing Agent.
+    parse_agent_prompt = f"""
+    You are a Research Paper Parsing Agent.
 
-Your job is to extract structured information from a research paper using the database_search tool.
+    Extract structured information from the context below.
+    Research Paper Name:
+    {context['Name']}
 
-Instructions:
-- Use the retriever_tool tool to retrieve relevant sections of the paper
-- You may call the tool multiple times if needed
-- Do NOT ask the user anything
-- Do NOT make up information
-- Only use retrieved content
+    Abstract Context:
+    {context['Abstract']}
 
-What to extract:
-- Abstract(Descriptive Abstract with Research Paper Name)
-- Method
-- Math (equations or formulas)
-- Experiments (datasets, setup with with Research Paper Name)
-- Results (performance, evaluation)
-- Youtube (YouTube search query which strictly represents the paperto find the more information about this paper NOT YOUTUBE LINKS JUST SEARCH QUERY )
+    Method Context:
+    {context['Method']}
 
-Output format (STRICT):
-Return ONLY valid JSON with this structure:
+    Math Context:
+    {context['Math']}
 
-{
-  "Abstract": "...",
-  "Method": "...",
-  "Math": "...",
-  "Experiments": "...",
-  "Results": "...",
-  "Youtube": "..."
-}
+    Experiments Context:
+    {context['Experiments']}
 
-Rules:
-- No extra text outside JSON
--descriptive details PLEASE DO NOT SUMMARIZE DETAILS MAKE IT DESCRIPTIVE 
--don't miss any important detail on research paper
-- If something is not found, return "Not found"
-"""
+    Results Context:
+    {context['Results']}
+
+    Instructions:
+    - Use the provided tools to get more information
+    - Clean and explain the content
+    - Remove noise or broken symbols
+    - Be descriptive. Give the sufficient amount of Information to work on.
+    - Do NOT hallucinate
+
+    Return ONLY JSON:
+
+    {{
+    "Paper_Name":"..."
+    "Abstract": "...",
+    "Method": "...",
+    "Math": "...",
+    "Experiments": "...",
+    "Results": "...",
+    "Youtube": "Generate a YouTube search query for this paper"
+    }}
+    """;
 
     parse_agent = create_agent(
-        model=parse_llm_with_tools,  # or any other supported model identifier string
-        tools=parse_agent_Tools,
+        model=llm,  # or any other supported model identifier string
+        tools=parse_agent_tools,
+        #response_format=PaperOutput,
         system_prompt=parse_agent_prompt
     )
 
@@ -96,10 +101,11 @@ Rules:
     inputs = {"messages": [{"role": "user", "content": "Analyze the given research paper"}]}
     result_parse_agent=parse_agent.invoke(inputs)
     raw_text =  result_parse_agent["messages"][-1].content
+  
     structured_llm = llm.with_structured_output(PaperOutput)
     final_output = structured_llm.invoke(raw_text)
 
-    return final_output.dict()
+    return final_output;
     
 
 
