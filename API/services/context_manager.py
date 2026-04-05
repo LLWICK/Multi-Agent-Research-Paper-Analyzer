@@ -1,6 +1,6 @@
 def split_context(parsed_json):
     return {
-        "teach": parsed_json["Abstract"] + parsed_json["Method"],
-        "math": parsed_json["Math"],
-        "experiment": parsed_json["Experiments"] + parsed_json["Results"]
+        "teach": "paper Name - "+parsed_json.Name+ parsed_json.Abstract + parsed_json.Method,
+        "math": "paper Name - "+parsed_json.Name+parsed_json.Math,
+        "experiment": "paper Name - "+parsed_json.Name+parsed_json.Experiments + parsed_json.Results
     }

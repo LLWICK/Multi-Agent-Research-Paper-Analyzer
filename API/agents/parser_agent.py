@@ -26,9 +26,7 @@ def praser_Agent(pdf_path):
 
     vectorstore = create_or_load_vectorstore(pdf_path)
     retriever_tool = build_retriever_tool(vectorstore)
-    wiki_api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
-    wiki_tool = WikipediaQueryRun(api_wrapper= wiki_api_wrapper)
-    parse_agent_tools = [wiki_tool]
+    
 
     context = multi_step_retrieval(retriever_tool)
 
@@ -71,7 +69,6 @@ def praser_Agent(pdf_path):
     {context['Results']}
 
     Instructions:
-    - Use the provided tools to get more information
     - Clean and explain the content
     - Remove noise or broken symbols
     - Be descriptive. Give the sufficient amount of Information to work on.
@@ -92,7 +89,7 @@ def praser_Agent(pdf_path):
 
     parse_agent = create_agent(
         model=llm,  # or any other supported model identifier string
-        tools=parse_agent_tools,
+        #tools=parse_agent_tools,
         #response_format=PaperOutput,
         system_prompt=parse_agent_prompt
     )

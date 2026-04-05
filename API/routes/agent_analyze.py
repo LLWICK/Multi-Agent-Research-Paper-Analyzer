@@ -28,10 +28,12 @@ async def analyze(file: UploadFile = File(...)):
 
     
 
-    #contexts = split_context(parsed)
+    contexts = split_context(parsed)
 
-    #results = await run_all_agents(contexts)
+    results = await run_all_agents(contexts)
     
     
    
-    return parsed;
+    return {
+        "results": results
+    };
