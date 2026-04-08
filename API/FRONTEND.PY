@@ -41,6 +41,34 @@ if uploaded_file is not None:
                         with st.expander("📐 Math", expanded=True):
                             st.markdown(result.get("math", "Not found"))
 
+                        with st.expander("📺 YouTube Videos", expanded=True):
+                            youtube_links  = result.get("youtube")
+
+                            if not youtube_links:
+                                st.info("No videos available")
+                            else:
+                                def get_video_id(url):
+                                    if "v=" in url:
+                                        return url.split("v=")[1].split("&")[0]
+                                    elif "youtu.be/" in url:
+                                        return url.split("youtu.be/")[1].split("?")[0]
+                                    return None
+
+                                for idx, link in enumerate(youtube_links):
+                                    video_id = get_video_id(link)
+
+                                    if video_id:
+                                        thumb_url = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+                                        st.markdown(f"""
+                                            <a href="{link}" target="_blank">
+                                                <img src="{thumb_url}" style="width:100%; border-radius:10px;">
+                                            </a>
+                                        """, unsafe_allow_html=True)
+
+                                        st.caption(f"▶ Watch Video {idx + 1}")
+                                        st.write("---")
+
                 else:
                     st.error(f"❌ Backend Error: {response.status_code}")
 

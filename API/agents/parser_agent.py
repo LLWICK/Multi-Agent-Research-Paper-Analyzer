@@ -11,12 +11,10 @@ from langchain.agents import create_agent
 from langchain.tools import tool
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from services.vectore_store import create_or_load_vectorstore
+from services.vectore_store import create_or_load_vectorstore, get_vectorstore
 from langchain_ollama import ChatOllama
 from services.Structured_output import PaperOutput
-from langchain_community.tools import WikipediaQueryRun
-from langchain_community.utilities import WikipediaAPIWrapper
+
 from tools.MultiStep_Reasoning import multi_step_retrieval
 load_dotenv()
 
@@ -24,7 +22,7 @@ load_dotenv()
 
 def praser_Agent(pdf_path):
 
-    vectorstore = create_or_load_vectorstore(pdf_path)
+    vectorstore = get_vectorstore(pdf_path)
     retriever_tool = build_retriever_tool(vectorstore)
     
 
